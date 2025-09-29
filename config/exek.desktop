@@ -1,0 +1,18 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Exek
+GenericName=Application Launcher
+Comment=Fast TUI application launcher with fuzzy matching and frecency-based sorting
+Exec=exek-launcher
+Terminal=false
+Icon=application-x-executable
+Categories=System;Utility;
+Keywords=launcher;runner;search;applications;programs;
+StartupNotify=false
+Actions=DirectRun;
+
+[Desktop Action DirectRun]
+Name=Run in Terminal
+Exec=exek
+Terminal=true

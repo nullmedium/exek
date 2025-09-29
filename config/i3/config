@@ -1,0 +1,23 @@
+# i3 configuration for exek launcher
+# Add this to your ~/.config/i3/config file
+
+# Launch exek with Super+d (like dmenu/rofi)
+bindsym $mod+d exec --no-startup-id alacritty --class exek-launcher -e exek
+
+# Alternative: Launch with Super+Space
+bindsym $mod+space exec --no-startup-id kitty --class exek-launcher -e exek
+
+# Alternative: Launch with Super+p (like program launcher)
+bindsym $mod+p exec --no-startup-id xterm -class exek-launcher -e exek
+
+# Make exek launcher window floating and centered
+for_window [class="exek-launcher"] floating enable
+for_window [class="exek-launcher"] resize set 800 400
+for_window [class="exek-launcher"] move position center
+for_window [class="exek-launcher"] border pixel 2
+
+# Optional: Use a scratchpad for quick access
+# This allows toggling the launcher with a single key
+bindsym $mod+Shift+d exec --no-startup-id alacritty --class exek-scratchpad -e exek
+for_window [class="exek-scratchpad"] move scratchpad, resize set 800 400
+bindsym $mod+minus [class="exek-scratchpad"] scratchpad show, move position center
