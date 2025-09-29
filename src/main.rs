@@ -65,6 +65,9 @@ fn run_app(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> 
 
     loop {
         terminal.draw(|frame| ui::render(frame, &state))?;
+        
+        // Calculate visible height for scrolling adjustments
+        let visible_height = terminal.size()?.height.saturating_sub(5) as usize;
 
         if let Event::Key(key) = event::read()? {
             match (key.code, key.modifiers) {
@@ -109,9 +112,19 @@ fn run_app(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> 
                 }
                 (KeyCode::Up, _) | (KeyCode::Char('k'), KeyModifiers::CONTROL) => {
                     state.move_selection_up();
+                    state.adjust_scroll(visible_height);
                 }
                 (KeyCode::Down, _) | (KeyCode::Char('j'), KeyModifiers::CONTROL) => {
                     state.move_selection_down();
+                    state.adjust_scroll(visible_height);
+                }
+                (KeyCode::PageUp, _) => {
+                    state.move_selection_page_up(visible_height);
+                    state.adjust_scroll(visible_height);
+                }
+                (KeyCode::PageDown, _) => {
+                    state.move_selection_page_down(visible_height);
+                    state.adjust_scroll(visible_height);
                 }
                 (KeyCode::Backspace, _) => {
                     if state.cursor_position > 0 {
