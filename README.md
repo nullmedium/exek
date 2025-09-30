@@ -104,4 +104,4 @@ cargo build --release
 
 ## License
 
-MIT
+BSD
