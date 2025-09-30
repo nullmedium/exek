@@ -59,6 +59,15 @@ impl Database {
         self.save()
     }
 
+    pub fn record_path_launch(&mut self, path: &std::path::Path) -> Result<()> {
+        // Store with a special prefix to distinguish path-based launches
+        let key = format!("path:{}", path.display());
+        let usage = self.usage.entry(key).or_default();
+        usage.launch_count += 1;
+        usage.last_launched = Some(Utc::now());
+        self.save()
+    }
+
     pub fn get_usage(&self, app_name: &str) -> AppUsage {
         self.usage
             .get(app_name)
@@ -90,6 +99,14 @@ impl Database {
         } else {
             0.0
         }
+    }
+
+    pub fn get_frequent_paths(&self) -> Vec<(String, AppUsage)> {
+        self.usage
+            .iter()
+            .filter(|(key, _)| key.starts_with("path:"))
+            .map(|(key, usage)| (key.strip_prefix("path:").unwrap_or(key).to_string(), usage.clone()))
+            .collect()
     }
 
     fn db_path() -> Result<PathBuf> {

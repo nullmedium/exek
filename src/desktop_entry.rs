@@ -14,6 +14,26 @@ pub struct AppEntry {
 }
 
 impl AppEntry {
+    pub fn from_path(path: &std::path::Path) -> Self {
+        let name = path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("Unknown")
+            .to_string();
+
+        // Make the name more distinctive by adding [Path] prefix
+        let display_name = format!("{} [Path]", name);
+
+        Self {
+            name: display_name,
+            exec: path.display().to_string(),
+            icon: None,
+            comment: Some(path.display().to_string()),
+            categories: vec!["Path".to_string()],
+            desktop_file: PathBuf::new(),
+            terminal: false,
+        }
+    }
+
     pub fn from_ini_file(path: PathBuf) -> Option<Self> {
         let content = std::fs::read_to_string(&path).ok()?;
         let mut name = None;

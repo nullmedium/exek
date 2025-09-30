@@ -35,7 +35,7 @@ impl AppState {
     pub fn move_selection_up(&mut self) {
         if self.selected_index > 0 {
             self.selected_index -= 1;
-            
+
             // Adjust scroll to keep selection visible
             if self.selected_index < self.scroll_offset {
                 self.scroll_offset = self.selected_index;
@@ -53,31 +53,31 @@ impl AppState {
             self.selected_index += 1;
         }
     }
-    
+
     pub fn move_selection_page_up(&mut self, page_size: usize) {
         if self.selected_index > page_size {
             self.selected_index -= page_size;
         } else {
             self.selected_index = 0;
         }
-        
+
         // Adjust scroll to show the selected item
         if self.selected_index < self.scroll_offset {
             self.scroll_offset = self.selected_index;
         }
     }
-    
+
     pub fn move_selection_page_down(&mut self, page_size: usize) {
         let max_index = match &self.mode {
             SearchMode::Applications(results) => results.len(),
             SearchMode::Paths(completions) => completions.len(),
         };
-        
+
         if max_index > 0 {
             self.selected_index = (self.selected_index + page_size).min(max_index - 1);
         }
     }
-    
+
     pub fn adjust_scroll(&mut self, visible_height: usize) {
         // Keep selection within visible window
         if self.selected_index >= self.scroll_offset + visible_height {
@@ -155,10 +155,10 @@ fn calculate_scroll_offset(selected_index: usize, current_offset: usize, visible
 fn render_results(frame: &mut Frame, area: Rect, state: &AppState) {
     // Calculate visible height (subtract 2 for borders)
     let visible_height = area.height.saturating_sub(2) as usize;
-    
+
     // Calculate scroll offset dynamically
     let scroll_offset = calculate_scroll_offset(state.selected_index, state.scroll_offset, visible_height);
-    
+
     let items: Vec<ListItem> = match &state.mode {
         SearchMode::Applications(results) => {
             results
@@ -242,8 +242,8 @@ fn render_results(frame: &mut Frame, area: Rect, state: &AppState) {
     let title = match &state.mode {
         SearchMode::Applications(_) => {
             if state.results_count() > visible_height {
-                format!(" Applications ({}/{}) ", 
-                    state.selected_index + 1, 
+                format!(" Applications ({}/{}) ",
+                    state.selected_index + 1,
                     state.results_count())
             } else {
                 format!(" Applications ({}) ", state.results_count())
@@ -251,7 +251,7 @@ fn render_results(frame: &mut Frame, area: Rect, state: &AppState) {
         },
         SearchMode::Paths(_) => {
             if state.results_count() > visible_height {
-                format!(" Path Completions ({}/{}) ", 
+                format!(" Path Completions ({}/{}) ",
                     state.selected_index + 1,
                     state.results_count())
             } else {

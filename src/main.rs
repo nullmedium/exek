@@ -55,8 +55,23 @@ fn restore_terminal(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Re
 }
 
 fn run_app(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
-    let apps = DesktopScanner::scan()?;
+    let mut apps = DesktopScanner::scan()?;
     let mut database = Database::load().unwrap_or_else(|_| Database::new());
+
+    // Add frequently used paths as synthetic app entries
+    for (path_str, usage) in database.get_frequent_paths() {
+        if usage.launch_count > 0 {
+            let path_buf = std::path::PathBuf::from(&path_str);
+            // Try both with and without canonicalization
+            if path_buf.exists() {
+                apps.push(desktop_entry::AppEntry::from_path(&path_buf));
+            } else if let Ok(path) = path_buf.canonicalize() {
+                if path.exists() {
+                    apps.push(desktop_entry::AppEntry::from_path(&path));
+                }
+            }
+        }
+    }
     let searcher = Searcher::new(database.clone());
     let path_completer = PathCompleter::new();
     let mut state = AppState::new();
@@ -65,7 +80,7 @@ fn run_app(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> 
 
     loop {
         terminal.draw(|frame| ui::render(frame, &state))?;
-        
+
         // Calculate visible height for scrolling adjustments
         let visible_height = terminal.size()?.height.saturating_sub(5) as usize;
 
@@ -103,6 +118,8 @@ fn run_app(terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> 
                                     state.mode = SearchMode::Paths(new_completions);
                                     state.reset_selection();
                                 } else {
+                                    // Record the launch in the database with the full path
+                                    database.record_path_launch(&selected.path)?;
                                     launch_executable(&selected.path)?;
                                     return Ok(());
                                 }

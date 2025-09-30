@@ -52,7 +52,12 @@ impl Searcher {
                 let base_score = name_score.max(exec_score).max(comment_score / 2).max(category_score / 3);
 
                 if base_score > 0 {
-                    let frecency = self.database.calculate_frecency(&app.name);
+                    // Check both regular name and path-based entries
+                    let frecency = if app.name.ends_with(" [Path]") {
+                        self.database.calculate_frecency(&format!("path:{}", app.exec))
+                    } else {
+                        self.database.calculate_frecency(&app.name)
+                    };
                     let boost = if name_score == base_score { 10 } else { 0 };
                     let final_score = base_score + boost + (frecency.min(100.0) as i64 / 10);
 
@@ -81,7 +86,12 @@ impl Searcher {
         let mut results: Vec<SearchResult> = apps
             .iter()
             .map(|app| {
-                let frecency = self.database.calculate_frecency(&app.name);
+                // Check both regular name and path-based entries
+                let frecency = if app.name.ends_with(" [Path]") {
+                    self.database.calculate_frecency(&format!("path:{}", app.exec))
+                } else {
+                    self.database.calculate_frecency(&app.name)
+                };
                 SearchResult {
                     app: app.clone(),
                     score: frecency as i64,
