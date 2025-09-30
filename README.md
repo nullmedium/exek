@@ -2,6 +2,8 @@
 
 A fast TUI application launcher with fuzzy matching and frecency-based sorting.
 
+![exek Screenshot](screenshots/screenshot_2025-09-30_16-25-31.png)
+
 ## Features
 
 - **Fuzzy matching** - Find applications quickly by typing partial names
